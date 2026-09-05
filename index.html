@@ -14,6 +14,8 @@
         --border: #e2ded6;
         --accent: #8a5a3b;
         --danger: #a9432a;
+        --warn: #b5842b;
+        --warn-bg: #f7eedd;
         --font:
           -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
           sans-serif;
@@ -34,7 +36,7 @@
 
       header {
         padding: 32px 24px 20px;
-        max-width: 960px;
+        max-width: 1100px;
         margin: 0 auto;
       }
       header h1 {
@@ -50,14 +52,17 @@
       }
 
       .toolbar {
-        max-width: 960px;
+        max-width: 1100px;
         margin: 0 auto;
         padding: 0 24px 18px;
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
       }
       .toolbar input[type="text"] {
         flex: 1;
+        min-width: 160px;
         padding: 9px 12px;
         border: 1px solid var(--border);
         border-radius: 5px;
@@ -68,6 +73,27 @@
       .toolbar input[type="text"]:focus {
         outline: 2px solid var(--accent);
         outline-offset: 1px;
+      }
+
+      .filter-group {
+        display: flex;
+        gap: 2px;
+        background: var(--border);
+        border-radius: 6px;
+        padding: 2px;
+      }
+      .filter-group button {
+        background: transparent;
+        border: none;
+        padding: 7px 14px;
+        font-size: 13px;
+        color: var(--ink-soft);
+        border-radius: 5px;
+      }
+      .filter-group button.active {
+        background: var(--panel);
+        color: var(--ink);
+        font-weight: 600;
       }
 
       button {
@@ -100,18 +126,48 @@
         color: var(--ink);
       }
 
-      .list {
-        max-width: 960px;
+      .board {
+        max-width: 1100px;
         margin: 0 auto;
         padding: 0 24px 60px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+      }
+      .board.split {
+        grid-template-columns: 1fr 1fr;
+      }
+      .board.single {
+        grid-template-columns: 1fr;
+      }
+
+      .column-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 2px solid var(--border);
+        padding-bottom: 8px;
+        margin-bottom: 14px;
+      }
+      .column-head .name {
+        font-family: var(--font-head);
+        font-style: italic;
+        font-size: 18px;
+      }
+      .column-head .n {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
         gap: 12px;
         align-items: start;
       }
-      .list .empty {
+      .grid .empty {
         grid-column: 1 / -1;
       }
+
       .item {
         background: var(--panel);
         border: 1px solid var(--border);
@@ -126,7 +182,7 @@
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        gap: 12px;
+        gap: 10px;
       }
       .item .company {
         font-size: 16px;
@@ -154,7 +210,7 @@
 
       .empty {
         text-align: center;
-        padding: 60px 20px;
+        padding: 40px 20px;
         color: var(--ink-soft);
         font-size: 14px;
         line-height: 1.6;
@@ -182,7 +238,7 @@
         transform: translate(-50%, -50%);
         background: var(--panel);
         border-radius: 8px;
-        width: 420px;
+        width: 440px;
         max-width: 92vw;
         max-height: 88vh;
         overflow-y: auto;
@@ -228,7 +284,8 @@
         margin-bottom: 4px;
       }
       .field input,
-      .field textarea {
+      .field textarea,
+      .field select {
         width: 100%;
         padding: 8px 10px;
         border: 1px solid var(--border);
@@ -243,7 +300,8 @@
         min-height: 70px;
       }
       .field input:focus,
-      .field textarea:focus {
+      .field textarea:focus,
+      .field select:focus {
         outline: 2px solid var(--accent);
         outline-offset: 0;
         background: var(--panel);
@@ -256,11 +314,52 @@
         flex: 1;
       }
 
+      .socio-toggle {
+        display: flex;
+        gap: 8px;
+      }
+      .socio-toggle label {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 13.5px;
+        cursor: pointer;
+        color: var(--ink-soft);
+      }
+      .socio-toggle input {
+        width: auto;
+        accent-color: var(--ink);
+      }
+      .socio-toggle input:checked + span {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .dup-warning {
+        display: none;
+        background: var(--warn-bg);
+        color: var(--warn);
+        font-size: 12.5px;
+        padding: 8px 10px;
+        border-radius: 5px;
+        margin-top: -6px;
+        margin-bottom: 14px;
+        line-height: 1.4;
+      }
+      .dup-warning.show {
+        display: block;
+      }
+
       .modal-actions {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 20px;
+        margin-top: 8px;
       }
       .modal-actions .left {
         display: flex;
@@ -275,6 +374,19 @@
       }
       .danger-link:hover {
         text-decoration: underline;
+      }
+
+      .confirm-overlay {
+        z-index: 70;
+      }
+      .confirm-box {
+        z-index: 80;
+        width: 340px;
+      }
+      .confirm-box .msg {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 18px;
       }
 
       .toast {
@@ -296,10 +408,15 @@
         opacity: 1;
       }
 
+      @media (max-width: 760px) {
+        .board.split {
+          grid-template-columns: 1fr;
+        }
+      }
       @media (max-width: 480px) {
         header,
         .toolbar,
-        .list {
+        .board {
           padding-left: 16px;
           padding-right: 16px;
         }
@@ -318,10 +435,15 @@
         id="search"
         placeholder="Buscar por empresa o nicho…"
       />
+      <div class="filter-group" id="filter-group">
+        <button data-view="split" class="active">Todos</button>
+        <button data-view="rama">Rama</button>
+        <button data-view="santi">Santi</button>
+      </div>
       <button class="btn-primary" id="btn-add">Agregar</button>
     </div>
 
-    <div class="list" id="list"></div>
+    <div class="board split" id="board"></div>
 
     <div class="overlay" id="overlay"></div>
     <div class="modal" id="modal">
@@ -331,9 +453,27 @@
       </div>
 
       <div class="field">
+        <label>Agregado por</label>
+        <div class="socio-toggle">
+          <label
+            ><input type="radio" name="f-socio" value="Rama" /><span
+              >Rama</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="f-socio" value="Santi" /><span
+              >Santi</span
+            ></label
+          >
+        </div>
+      </div>
+
+      <div class="field">
         <label>Nombre de la empresa</label>
         <input type="text" id="f-company" placeholder="Ej: Panadería del Sol" />
       </div>
+      <div class="dup-warning" id="dup-warning"></div>
+
       <div class="field">
         <label>Nicho</label>
         <input
@@ -371,14 +511,27 @@
       </div>
     </div>
 
+    <div class="overlay confirm-overlay" id="confirm-overlay"></div>
+    <div class="modal confirm-box" id="confirm-box">
+      <div class="msg" id="confirm-message"></div>
+      <div class="modal-actions">
+        <div class="left">
+          <button class="btn-primary" id="confirm-yes">Confirmar</button>
+          <button class="btn-ghost" id="confirm-no">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
       (function () {
         const STORAGE_KEY = "crm-simple:empresas";
+        const SOCIOS = ["Rama", "Santi"];
         let empresas = [];
         let searchQuery = "";
         let editingId = null;
+        let currentView = "split"; // split | rama | santi
 
         const $ = (sel) => document.querySelector(sel);
 
@@ -393,6 +546,15 @@
           t.textContent = msg;
           t.classList.add("show");
           setTimeout(() => t.classList.remove("show"), 1500);
+        }
+
+        function normalize(str) {
+          return (str || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
         }
 
         async function load() {
@@ -425,6 +587,47 @@
           );
         }
 
+        function showConfirm(message) {
+          return new Promise((resolve) => {
+            $("#confirm-message").textContent = message;
+            $("#confirm-overlay").classList.add("show");
+            $("#confirm-box").classList.add("show");
+
+            const yesBtn = $("#confirm-yes");
+            const noBtn = $("#confirm-no");
+            const ovl = $("#confirm-overlay");
+
+            function cleanup(result) {
+              $("#confirm-overlay").classList.remove("show");
+              $("#confirm-box").classList.remove("show");
+              yesBtn.removeEventListener("click", onYes);
+              noBtn.removeEventListener("click", onNo);
+              ovl.removeEventListener("click", onNo);
+              resolve(result);
+            }
+            function onYes() {
+              cleanup(true);
+            }
+            function onNo() {
+              cleanup(false);
+            }
+
+            yesBtn.addEventListener("click", onYes);
+            noBtn.addEventListener("click", onNo);
+            ovl.addEventListener("click", onNo);
+          });
+        }
+
+        function findDuplicate(companyName, excludeId) {
+          const norm = normalize(companyName);
+          if (!norm) return null;
+          return (
+            empresas.find(
+              (e) => e.id !== excludeId && normalize(e.company) === norm,
+            ) || null
+          );
+        }
+
         function itemHTML(e) {
           const contactParts = [];
           if (e.phone) contactParts.push(escapeHTML(e.phone));
@@ -441,20 +644,54 @@
     `;
         }
 
+        function columnHTML(socio, list) {
+          let body;
+          if (list.length === 0) {
+            body = `<div class="empty">Sin empresas de ${socio} todavía.</div>`;
+          } else {
+            body = `<div class="grid">${list.map(itemHTML).join("")}</div>`;
+          }
+          return `
+      <div class="column">
+        <div class="column-head">
+          <span class="name">${socio}</span>
+          <span class="n">${list.length}</span>
+        </div>
+        ${body}
+      </div>
+    `;
+        }
+
         function render() {
           $("#count").textContent =
             empresas.length === 1 ? "1 empresa" : `${empresas.length} empresas`;
-          const filtered = empresas.filter(matchesSearch);
-          const list = $("#list");
+
+          document.querySelectorAll("#filter-group button").forEach((b) => {
+            b.classList.toggle("active", b.dataset.view === currentView);
+          });
+
+          const board = $("#board");
+
           if (empresas.length === 0) {
-            list.innerHTML = `<div class="empty">Todavía no cargaste ninguna empresa.<br><button class="btn-primary" id="empty-add">Agregar la primera</button></div>`;
+            board.className = "board single";
+            board.innerHTML = `<div class="empty">Todavía no cargaste ninguna empresa.<br><button class="btn-primary" id="empty-add">Agregar la primera</button></div>`;
             return;
           }
-          if (filtered.length === 0) {
-            list.innerHTML = `<div class="empty">No hay resultados para esa búsqueda.</div>`;
-            return;
+
+          const filtered = empresas.filter(matchesSearch);
+
+          if (currentView === "split") {
+            board.className = "board split";
+            const rama = filtered.filter((e) => e.socio === "Rama");
+            const santi = filtered.filter((e) => e.socio === "Santi");
+            board.innerHTML =
+              columnHTML("Rama", rama) + columnHTML("Santi", santi);
+          } else {
+            board.className = "board single";
+            const socioLabel = currentView === "rama" ? "Rama" : "Santi";
+            const list = filtered.filter((e) => e.socio === socioLabel);
+            board.innerHTML = columnHTML(socioLabel, list);
           }
-          list.innerHTML = filtered.map(itemHTML).join("");
         }
 
         function openModal(id) {
@@ -468,7 +705,13 @@
           $("#f-phone").value = e ? e.phone : "";
           $("#f-email").value = e ? e.email : "";
           $("#f-desc").value = e ? e.desc : "";
+          document.querySelectorAll("input[name=f-socio]").forEach((r) => {
+            r.checked = e
+              ? r.value === e.socio
+              : r.value === (currentView === "santi" ? "Santi" : "Rama");
+          });
           $("#delete-item").style.display = e ? "inline-block" : "none";
+          $("#dup-warning").classList.remove("show");
           $("#overlay").classList.add("show");
           $("#modal").classList.add("show");
           $("#f-company").focus();
@@ -480,14 +723,40 @@
           editingId = null;
         }
 
+        function checkDupWhileTyping() {
+          const dup = findDuplicate($("#f-company").value, editingId);
+          const box = $("#dup-warning");
+          if (dup) {
+            box.textContent = `Ya hay una empresa cargada con este nombre (agregada por ${dup.socio}${dup.niche ? ", nicho: " + dup.niche : ""}). Revisá antes de guardar de nuevo.`;
+            box.classList.add("show");
+          } else {
+            box.classList.remove("show");
+          }
+        }
+
         async function saveItem() {
           const company = $("#f-company").value.trim();
           if (!company) {
             $("#f-company").focus();
             return;
           }
+
+          const socioInput = document.querySelector(
+            "input[name=f-socio]:checked",
+          );
+          const socio = socioInput ? socioInput.value : "Rama";
+
+          const dup = findDuplicate(company, editingId);
+          if (dup) {
+            const seguir = await showConfirm(
+              `Esta empresa ya está cargada (agregada por ${dup.socio}). ¿Querés guardarla de todas formas?`,
+            );
+            if (!seguir) return;
+          }
+
           const data = {
             company,
+            socio,
             niche: $("#f-niche").value.trim(),
             phone: $("#f-phone").value.trim(),
             email: $("#f-email").value.trim(),
@@ -510,7 +779,10 @@
 
         async function deleteItem() {
           if (!editingId) return;
-          if (!confirm("¿Eliminar esta empresa? No se puede deshacer.")) return;
+          const ok = await showConfirm(
+            "¿Eliminar esta empresa? No se puede deshacer.",
+          );
+          if (!ok) return;
           empresas = empresas.filter((x) => x.id !== editingId);
           await save();
           closeModal();
@@ -524,13 +796,21 @@
         $("#overlay").addEventListener("click", closeModal);
         $("#save-item").addEventListener("click", saveItem);
         $("#delete-item").addEventListener("click", deleteItem);
+        $("#f-company").addEventListener("input", checkDupWhileTyping);
 
         $("#search").addEventListener("input", (e) => {
           searchQuery = e.target.value;
           render();
         });
 
-        $("#list").addEventListener("click", (e) => {
+        $("#filter-group").addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-view]");
+          if (!btn) return;
+          currentView = btn.dataset.view;
+          render();
+        });
+
+        $("#board").addEventListener("click", (e) => {
           const emptyAdd = e.target.closest("#empty-add");
           if (emptyAdd) {
             openModal(null);
