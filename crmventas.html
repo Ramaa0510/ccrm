@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contactos</title>
+    <style>
+      :root {
+        --bg: #f5f5f2;
+        --panel: #ffffff;
+        --ink: #201f1d;
+        --ink-soft: #706a63;
+        --ink-faint: #a39c93;
+        --border: #e2ded6;
+        --accent: #8a5a3b;
+        --danger: #a9432a;
+        --font:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+        --font-head: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
+      }
+      ::selection {
+        background: #efe2d6;
+      }
+
+      header {
+        padding: 32px 24px 20px;
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      header h1 {
+        font-family: var(--font-head);
+        font-style: italic;
+        font-weight: 400;
+        font-size: 26px;
+        margin: 0 0 2px;
+      }
+      header .count {
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+
+      .toolbar {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 24px 18px;
+        display: flex;
+        gap: 10px;
+      }
+      .toolbar input[type="text"] {
+        flex: 1;
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 14px;
+        background: var(--panel);
+        color: var(--ink);
+      }
+      .toolbar input[type="text"]:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
+      button {
+        font-family: var(--font);
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: var(--ink);
+        color: #fff;
+        border: none;
+        padding: 9px 16px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .btn-primary:hover {
+        background: #3a3733;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        padding: 8px 13px;
+        border-radius: 5px;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      .btn-ghost:hover {
+        border-color: var(--ink-faint);
+        color: var(--ink);
+      }
+
+      .list {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 24px 60px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+        align-items: start;
+      }
+      .list .empty {
+        grid-column: 1 / -1;
+      }
+      .item {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 16px 18px;
+        cursor: pointer;
+      }
+      .item:hover {
+        border-color: var(--ink-faint);
+      }
+      .item .row1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+      }
+      .item .company {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .item .niche {
+        font-size: 12px;
+        color: var(--accent);
+        background: #f1e7dd;
+        padding: 2px 8px;
+        border-radius: 3px;
+        white-space: nowrap;
+      }
+      .item .contact-line {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-top: 6px;
+      }
+      .item .desc {
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        margin-top: 8px;
+        line-height: 1.4;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--ink-soft);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .empty button {
+        margin-top: 14px;
+      }
+
+      /* Overlay + modal */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 18, 16, 0.35);
+        display: none;
+        z-index: 40;
+      }
+      .overlay.show {
+        display: block;
+      }
+
+      .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--panel);
+        border-radius: 8px;
+        width: 420px;
+        max-width: 92vw;
+        max-height: 88vh;
+        overflow-y: auto;
+        padding: 26px;
+        z-index: 50;
+        display: none;
+      }
+      .modal.show {
+        display: block;
+      }
+
+      .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 18px;
+      }
+      .modal-title {
+        font-family: var(--font-head);
+        font-style: italic;
+        font-size: 20px;
+        margin: 0;
+      }
+      .close-x {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: var(--ink-soft);
+        line-height: 1;
+        padding: 2px 4px;
+      }
+      .close-x:hover {
+        color: var(--ink);
+      }
+
+      .field {
+        margin-bottom: 14px;
+      }
+      .field label {
+        display: block;
+        font-size: 12px;
+        color: var(--ink-soft);
+        margin-bottom: 4px;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: var(--font);
+        color: var(--ink);
+        background: var(--bg);
+      }
+      .field textarea {
+        resize: vertical;
+        min-height: 70px;
+      }
+      .field input:focus,
+      .field textarea:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 0;
+        background: var(--panel);
+      }
+      .field-row {
+        display: flex;
+        gap: 10px;
+      }
+      .field-row .field {
+        flex: 1;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      }
+      .modal-actions .left {
+        display: flex;
+        gap: 10px;
+      }
+      .danger-link {
+        background: none;
+        border: none;
+        color: var(--danger);
+        font-size: 13px;
+        padding: 0;
+      }
+      .danger-link:hover {
+        text-decoration: underline;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--ink);
+        color: #fff;
+        padding: 9px 18px;
+        border-radius: 5px;
+        font-size: 13px;
+        z-index: 60;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+
+      @media (max-width: 480px) {
+        header,
+        .toolbar,
+        .list {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Contactos</h1>
+      <div class="count" id="count">—</div>
+    </header>
+
+    <div class="toolbar">
+      <input
+        type="text"
+        id="search"
+        placeholder="Buscar por empresa o nicho…"
+      />
+      <button class="btn-primary" id="btn-add">Agregar</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-title">Nueva empresa</div>
+        <button class="close-x" id="modal-close">×</button>
+      </div>
+
+      <div class="field">
+        <label>Nombre de la empresa</label>
+        <input type="text" id="f-company" placeholder="Ej: Panadería del Sol" />
+      </div>
+      <div class="field">
+        <label>Nicho</label>
+        <input
+          type="text"
+          id="f-niche"
+          placeholder="Ej: gastronomía, retail, salud…"
+        />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Teléfono</label>
+          <input type="text" id="f-phone" placeholder="+54 …" />
+        </div>
+        <div class="field">
+          <label>Mail</label>
+          <input type="email" id="f-email" placeholder="correo@empresa.com" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <textarea
+          id="f-desc"
+          placeholder="Notas, contexto, qué necesita…"
+        ></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <div class="left">
+          <button class="btn-primary" id="save-item">Guardar</button>
+          <button class="btn-ghost" id="cancel-item">Cancelar</button>
+        </div>
+        <button class="danger-link" id="delete-item" style="display: none">
+          Eliminar
+        </button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = "crm-simple:empresas";
+        let empresas = [];
+        let searchQuery = "";
+        let editingId = null;
+
+        const $ = (sel) => document.querySelector(sel);
+
+        function escapeHTML(str) {
+          const d = document.createElement("div");
+          d.textContent = str == null ? "" : String(str);
+          return d.innerHTML;
+        }
+
+        function showToast(msg) {
+          const t = $("#toast");
+          t.textContent = msg;
+          t.classList.add("show");
+          setTimeout(() => t.classList.remove("show"), 1500);
+        }
+
+        async function load() {
+          try {
+            const res = await window.storage.get(STORAGE_KEY, false);
+            empresas = res ? JSON.parse(res.value) : [];
+          } catch (e) {
+            empresas = [];
+          }
+        }
+
+        async function save() {
+          try {
+            await window.storage.set(
+              STORAGE_KEY,
+              JSON.stringify(empresas),
+              false,
+            );
+          } catch (e) {
+            showToast("No se pudo guardar. Intentá de nuevo.");
+          }
+        }
+
+        function matchesSearch(e) {
+          if (!searchQuery) return true;
+          const q = searchQuery.toLowerCase();
+          return (
+            (e.company || "").toLowerCase().includes(q) ||
+            (e.niche || "").toLowerCase().includes(q)
+          );
+        }
+
+        function itemHTML(e) {
+          const contactParts = [];
+          if (e.phone) contactParts.push(escapeHTML(e.phone));
+          if (e.email) contactParts.push(escapeHTML(e.email));
+          return `
+      <div class="item" data-id="${e.id}">
+        <div class="row1">
+          <div class="company">${escapeHTML(e.company || "Sin nombre")}</div>
+          ${e.niche ? `<div class="niche">${escapeHTML(e.niche)}</div>` : ""}
+        </div>
+        ${contactParts.length ? `<div class="contact-line">${contactParts.join(" · ")}</div>` : ""}
+        ${e.desc ? `<div class="desc">${escapeHTML(e.desc)}</div>` : ""}
+      </div>
+    `;
+        }
+
+        function render() {
+          $("#count").textContent =
+            empresas.length === 1 ? "1 empresa" : `${empresas.length} empresas`;
+          const filtered = empresas.filter(matchesSearch);
+          const list = $("#list");
+          if (empresas.length === 0) {
+            list.innerHTML = `<div class="empty">Todavía no cargaste ninguna empresa.<br><button class="btn-primary" id="empty-add">Agregar la primera</button></div>`;
+            return;
+          }
+          if (filtered.length === 0) {
+            list.innerHTML = `<div class="empty">No hay resultados para esa búsqueda.</div>`;
+            return;
+          }
+          list.innerHTML = filtered.map(itemHTML).join("");
+        }
+
+        function openModal(id) {
+          editingId = id || null;
+          const e = id ? empresas.find((x) => x.id === id) : null;
+          $("#modal-title").textContent = e
+            ? "Editar empresa"
+            : "Nueva empresa";
+          $("#f-company").value = e ? e.company : "";
+          $("#f-niche").value = e ? e.niche : "";
+          $("#f-phone").value = e ? e.phone : "";
+          $("#f-email").value = e ? e.email : "";
+          $("#f-desc").value = e ? e.desc : "";
+          $("#delete-item").style.display = e ? "inline-block" : "none";
+          $("#overlay").classList.add("show");
+          $("#modal").classList.add("show");
+          $("#f-company").focus();
+        }
+
+        function closeModal() {
+          $("#overlay").classList.remove("show");
+          $("#modal").classList.remove("show");
+          editingId = null;
+        }
+
+        async function saveItem() {
+          const company = $("#f-company").value.trim();
+          if (!company) {
+            $("#f-company").focus();
+            return;
+          }
+          const data = {
+            company,
+            niche: $("#f-niche").value.trim(),
+            phone: $("#f-phone").value.trim(),
+            email: $("#f-email").value.trim(),
+            desc: $("#f-desc").value.trim(),
+          };
+          if (editingId) {
+            const e = empresas.find((x) => x.id === editingId);
+            Object.assign(e, data);
+          } else {
+            data.id = crypto.randomUUID
+              ? crypto.randomUUID()
+              : String(Date.now() + Math.random());
+            empresas.unshift(data);
+          }
+          await save();
+          closeModal();
+          render();
+          showToast("Guardado");
+        }
+
+        async function deleteItem() {
+          if (!editingId) return;
+          if (!confirm("¿Eliminar esta empresa? No se puede deshacer.")) return;
+          empresas = empresas.filter((x) => x.id !== editingId);
+          await save();
+          closeModal();
+          render();
+          showToast("Eliminado");
+        }
+
+        $("#btn-add").addEventListener("click", () => openModal(null));
+        $("#modal-close").addEventListener("click", closeModal);
+        $("#cancel-item").addEventListener("click", closeModal);
+        $("#overlay").addEventListener("click", closeModal);
+        $("#save-item").addEventListener("click", saveItem);
+        $("#delete-item").addEventListener("click", deleteItem);
+
+        $("#search").addEventListener("input", (e) => {
+          searchQuery = e.target.value;
+          render();
+        });
+
+        $("#list").addEventListener("click", (e) => {
+          const emptyAdd = e.target.closest("#empty-add");
+          if (emptyAdd) {
+            openModal(null);
+            return;
+          }
+          const item = e.target.closest(".item");
+          if (item) {
+            openModal(item.dataset.id);
+          }
+        });
+
+        (async function init() {
+          await load();
+          render();
+        })();
+      })();
+    </script>
+  </body>
+</html>
