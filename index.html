@@ -559,8 +559,8 @@
 
         async function load() {
           try {
-            const res = await window.storage.get(STORAGE_KEY, false);
-            empresas = res ? JSON.parse(res.value) : [];
+            const raw = localStorage.getItem(STORAGE_KEY);
+            empresas = raw ? JSON.parse(raw) : [];
           } catch (e) {
             empresas = [];
           }
@@ -568,11 +568,7 @@
 
         async function save() {
           try {
-            await window.storage.set(
-              STORAGE_KEY,
-              JSON.stringify(empresas),
-              false,
-            );
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(empresas));
           } catch (e) {
             showToast("No se pudo guardar. Intentá de nuevo.");
           }
