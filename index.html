@@ -524,9 +524,24 @@
 
     <div class="toast" id="toast"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
     <script>
       (function () {
-        const STORAGE_KEY = "crm-simple:empresas";
+        // === Pegá acá la configuración que te da Firebase (ver instrucciones) ===
+        const firebaseConfig = {
+          apiKey: "AIzaSyBdsYWx69xJxPjhMBpYbt5DeVnthjbtjfI",
+          authDomain: "crmm-94fbd.firebaseapp.com",
+          projectId: "crmm-94fbd",
+          storageBucket: "crmm-94fbd.firebasestorage.app",
+          messagingSenderId: "866900883838",
+          appId: "1:866900883838:web:98263ae048c034e68b1b2f",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const COLLECTION = "empresas";
+
         const SOCIOS = ["Rama", "Santi"];
         let empresas = [];
         let searchQuery = "";
@@ -557,21 +572,22 @@
             .trim();
         }
 
-        async function load() {
-          try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            empresas = raw ? JSON.parse(raw) : [];
-          } catch (e) {
-            empresas = [];
-          }
-        }
-
-        async function save() {
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(empresas));
-          } catch (e) {
-            showToast("No se pudo guardar. Intentá de nuevo.");
-          }
+        function subscribe() {
+          db.collection(COLLECTION)
+            .orderBy("createdAt", "desc")
+            .onSnapshot(
+              (snapshot) => {
+                empresas = snapshot.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }));
+                render();
+              },
+              (error) => {
+                console.error(error);
+                showToast("No se pudo conectar con la base de datos.");
+              },
+            );
         }
 
         function matchesSearch(e) {
@@ -758,19 +774,19 @@
             email: $("#f-email").value.trim(),
             desc: $("#f-desc").value.trim(),
           };
-          if (editingId) {
-            const e = empresas.find((x) => x.id === editingId);
-            Object.assign(e, data);
-          } else {
-            data.id = crypto.randomUUID
-              ? crypto.randomUUID()
-              : String(Date.now() + Math.random());
-            empresas.unshift(data);
+          try {
+            if (editingId) {
+              await db.collection(COLLECTION).doc(editingId).update(data);
+            } else {
+              data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+              await db.collection(COLLECTION).add(data);
+            }
+            closeModal();
+            showToast("Guardado");
+          } catch (err) {
+            console.error(err);
+            showToast("No se pudo guardar. Revisá tu conexión.");
           }
-          await save();
-          closeModal();
-          render();
-          showToast("Guardado");
         }
 
         async function deleteItem() {
@@ -779,11 +795,14 @@
             "¿Eliminar esta empresa? No se puede deshacer.",
           );
           if (!ok) return;
-          empresas = empresas.filter((x) => x.id !== editingId);
-          await save();
-          closeModal();
-          render();
-          showToast("Eliminado");
+          try {
+            await db.collection(COLLECTION).doc(editingId).delete();
+            closeModal();
+            showToast("Eliminado");
+          } catch (err) {
+            console.error(err);
+            showToast("No se pudo eliminar. Revisá tu conexión.");
+          }
         }
 
         $("#btn-add").addEventListener("click", () => openModal(null));
@@ -818,10 +837,7 @@
           }
         });
 
-        (async function init() {
-          await load();
-          render();
-        })();
+        subscribe();
       })();
     </script>
   </body>
